@@ -40,20 +40,7 @@ var bufferIsEqual = function(buf1, buf2) {
 function FileSignature() {
 }
 
-/**
- * Looks for a signature match, and returns information about the signature
- *
- * returns undefined if no match
- */
-FileSignature.prototype.identify = function(pathTo) {
-  var fd,
-      buf = new Buffer(256),
-      i;
-
-  fd = fs.openSync(pathTo, 'r');
-  fs.readSync(fd, buf, 0, buf.length, 0);
-  fs.closeSync(fd);
-
+FileSignature.prototype.fromBuffer = function(buf) {
   for (i = signatures.length - 1; i >= 0; i--) {
     if (bufferIsEqual(buf.slice(0, signatures[i].byteSeq.length), signatures[i].byteSeq)) {
       return {
@@ -64,7 +51,24 @@ FileSignature.prototype.identify = function(pathTo) {
     }
   }
 
-  return undefined;
+  return undefined
+}
+
+/**
+ * Looks for a signature match, and returns information about the signature
+ *
+ * returns undefined if no match
+ */
+FileSignature.prototype.fromPath = function(pathTo) {
+  var fd,
+      buf = new Buffer(256),
+      i;
+
+  fd = fs.openSync(pathTo, 'r');
+  fs.readSync(fd, buf, 0, buf.length, 0);
+  fs.closeSync(fd);
+
+  return this.fromBuffer(buf)
 };
 
-module.exports = new FileSignature();
+module.exports = new FileSignature()
